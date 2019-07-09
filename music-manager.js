@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 const Command = require('./command');
 const Queue = require('./queue');
 const Music = require('./music');
+const alert = require('./alert');
 
 /**
  * 
@@ -70,11 +71,16 @@ async function join(command) {
  * @param {Command} command 
  */
 async function leave(command) {
-    if (!queue || !queue.connected) {
-        const embed = new Discord.RichEmbed()
-            .setTitle(`❌ 현재 음성 채널에 접속되어 있지 않습니다.`)
-        await command.msg.channel.send(embed);
-        return;
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+    }
+
+    if (!queue.connected) {
+        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg);
+    }
+
+    if (queue.musics.length == 0) {
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
     }
 
     var queue = queues.get(command.msg.guild.id);
@@ -83,9 +89,7 @@ async function leave(command) {
     queue.guild.voiceConnection.disconnect();
     queue.connected = false;
 
-    const embed = new Discord.RichEmbed()
-        .setTitle(`음성 채널에서 나갑니다.`)
-    await command.msg.channel.send(embed);
+    return alert('OK', '음성 채널에서 나갑니다.', command.msg);
 }
 
 /**
@@ -120,11 +124,7 @@ async function play(command) {
                 }
             }
             catch (e) {
-                const embed = new Discord.RichEmbed()
-                    .setTitle(`❌ 올바르지 않은 주소입니다.`)
-                await command.msg.channel.send(embed);
-
-                return;
+                return alert('ERROR', '올바르지 않은 주소입니다.', command.msg);
             }
         }
         else {
@@ -154,7 +154,7 @@ async function play(command) {
                             if (text === 'c') {
                                 collected.first().delete();
                                 display.delete();
-                                return command.msg.channel.send('✅ 검색이 취소 되었습니다.');
+                                return alert('OK', '검색이 취소되었습니다.', command.msg);
                             }
 
                             var num = parseInt(text);
@@ -172,9 +172,7 @@ async function play(command) {
 
                             return;
                         }).catch(err => {
-                            const embed = new Discord.RichEmbed()
-                                .setTitle(`❌ 검색이 취소 되었습니다.`)
-                            return command.msg.channel.send(embed);
+                            return alert('ERROR', '검색이 취소되었습니다.', command.msg);
                         });
 
                 });
@@ -185,15 +183,14 @@ async function play(command) {
     }
 
     if (queue.musics.length == 0) {
-        const embed = new Discord.RichEmbed()
-            .setTitle(`❌ 현재 대기열이 비어있습니다.`)
-        await command.msg.channel.send(embed);
-    }
-    else {
-        if (!queue.playing) {
-            queue.playing = true;
-            startStream(command.msg.guild, command, queue.musics[0]);
+        if (queue.musics.length == 0) {
+            return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
         }
+    }
+
+    if (!queue.playing) {
+        queue.playing = true;
+        startStream(command.msg.guild, command, queue.musics[0]);
     }
 }
 /**
@@ -210,11 +207,7 @@ async function startStream(guild, command, music) {
         queue.guild.voiceConnection.disconnect();
         queues.delete(guild);
 
-        const embed = new Discord.RichEmbed()
-            .setTitle(`모든 음악의 재생을 종료하여 음성 채널에서 나갑니다.`)
-        await command.msg.channel.send(embed);
-
-        return;
+        return alert('', '모든 음악의 재생을 종료하여 음성 채널에서 나갑니다.', queue.textChannel);
     }
 
     const dispatcher = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }))
@@ -223,7 +216,7 @@ async function startStream(guild, command, music) {
                 .setTitle(`🎵 다음 음악을 재생합니다 - ${music.title}`)
                 .setDescription(`[<@${music.user.id}>]`)
                 .setURL(music.url);
-            command.msg.channel.send(embed);
+            queue.textChannel.send(embed);
         })
         .on('end', function () {
             if (queue.playing) {
@@ -247,25 +240,21 @@ async function skip(command) {
 
     if (queue && queue.musics.length > 0) {
         if (!queue.connected) {
-            const embed = new Discord.RichEmbed()
-                .setTitle(`❌ 현재 음악을 재생하고 있지 않습니다.`)
-            await command.msg.channel.send(embed);
+            await alert('ERROR', '현재 음악을 재생하고 있지 않습니다.', command.msg);
         }
         else {
             await command.msg.react('✅');
+
             const embed = new Discord.RichEmbed()
                 .setTitle(`다음 음악이 스킵되었습니다.`)
                 .setDescription(`${queue.musics[0].title}`)
             await command.msg.channel.send(embed);
 
-
             queue.guild.voiceConnection.dispatcher.end();
         }
     }
     else {
-        const embed = new Discord.RichEmbed()
-            .setTitle(`❌ 현재 대기열이 비어있습니다.`)
-        await command.msg.channel.send(embed);
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
     }
 }
 
@@ -330,6 +319,11 @@ async function addPlaylist(command, url) {
 async function printQueue(command) {
     var queue = queues.get(command.msg.guild.id);
 
+    if (!queue) {
+        await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 존재하지 않습니다.\n```');
+        return;
+    }
+
     if (!queue || queue.musics.length == 0) {
         await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 비어있습니다.\n```');
         return;
@@ -343,24 +337,24 @@ async function printQueue(command) {
 
     text += '```';
 
-    await command.msg.channel.send(text);
+    return command.msg.channel.send(text);
 }
 
 async function printNowPlaying(command) {
     var queue = queues.get(command.msg.guild.id);
 
-    if (queue && queue.playing && queue.musics.length > 0) {
-        var music = queue.musics[0];
-        const embed = new Discord.RichEmbed()
-            .setTitle(`🎵 현재 재생 중인 음악 -  ${music.title}`)
-            .setDescription(`[<@${music.user.id}>]`)
-            .setURL(music.url);
-        await command.msg.channel.send(embed);
-    }
-    else {
-        const embed = new Discord.RichEmbed()
-            .setTitle(`❌ 현재 음악을 재생하고 있지 않습니다.`)
-        await command.msg.channel.send(embed);
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
     }
 
+    if (queue.musics.length == 0) {
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
+    }
+
+    var music = queue.musics[0];
+    const embed = new Discord.RichEmbed()
+        .setTitle(`🎵 현재 재생 중인 음악 -  ${music.title}`)
+        .setDescription(`[<@${music.user.id}>]`)
+        .setURL(music.url);
+    return command.msg.channel.send(embed);
 }

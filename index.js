@@ -1,14 +1,16 @@
 const Discord = require('discord.js');
-const global = require('./global');
-const config = require('./config');
-const musicManager = require('./music-manager');
-const Command = require('./command');
-const router = require('./router');
+const global = require('./system/global');
+const config = require('./system/config');
+const musicManager = require('./music/music-manager');
+const Command = require('./system/command');
+const router = require('./system/router');
+const help = require('./utility/help/help')
 
 var client = new Discord.Client();
 
 client.on('ready', function () {
     client.user.setActivity('!help', { type: "LISTENING" });
+    help.init();
 })
 
 client.on('message', function (msg) {

@@ -3,9 +3,9 @@ const Discord = require('discord.js');
 /**
  * @param {String} type ['OK', 'WARNING', 'ERROR']
  * @param {String} text
- * @param {Discord.Message} msg
+ * @param {Discord.TextChannel} channel
  */
-module.exports = async function (type, text, msg) {
+module.exports = async function (type, text, channel) {
     var icon;
     const embed = new Discord.RichEmbed()
 
@@ -37,7 +37,7 @@ module.exports = async function (type, text, msg) {
         embed.setTitle(`${icon} ${text}`);
     }
 
-    await msg.channel.send(embed);
+    await channel.send(embed);
 
     return;
 }

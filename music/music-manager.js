@@ -2,10 +2,10 @@ const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const ytSearch = require('yt-search');
 const Discord = require('discord.js');
-const Command = require('./command');
+const Command = require('../system/command');
 const Queue = require('./queue');
 const Music = require('./music');
-const alert = require('./alert');
+const alert = require('../utility/alert');
 
 /**
  * 
@@ -42,6 +42,10 @@ exports.cmd = async function (command) {
         case 'nowplaying':
         case 'np':
             await printNowPlaying(command);
+            return;
+
+        case 'repeat':
+            await toggleRepeat(command);
             return;
     }
 }
@@ -223,7 +227,12 @@ async function startStream(guild, command, music) {
         })
         .on('end', function () {
             if (queue.playing) {
-                queue.musics.shift();
+                var music = queue.musics.shift();
+
+                if (queue.repeat) {
+                    queue.musics.push(music);
+                }
+
                 startStream(guild, command, queue.musics[0]);
             }
         })
@@ -243,7 +252,7 @@ async function skip(command) {
 
     if (queue && queue.musics.length > 0) {
         if (!queue.connected) {
-            await alert('ERROR', '현재 음악을 재생하고 있지 않습니다.', command.msg);
+            await alert('ERROR', '현재 음악을 재생하고 있지 않습니다.', command.msg.channel);
         }
         else {
             await command.msg.react('✅');
@@ -257,7 +266,7 @@ async function skip(command) {
         }
     }
     else {
-        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 }
 
@@ -345,15 +354,19 @@ async function printQueue(command) {
     return command.msg.channel.send(text);
 }
 
+/**
+ * 
+ * @param {Command} command 
+ */
 async function printNowPlaying(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     if (queue.musics.length == 0) {
-        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 
     var music = queue.musics[0];
@@ -363,4 +376,23 @@ async function printNowPlaying(command) {
         .setURL(music.url)
         .setColor('#00ccff');
     return command.msg.channel.send(embed);
+}
+
+/**
+ * 
+ * @param {Command} command 
+ */
+async function toggleRepeat(command) {
+    var queue = queues.get(command.msg.guild.id);
+
+    queue.repeat = !queue.repeat;
+
+    if (queue.repeat) {
+        alert('', '반복 재생이 활성화 되었습니다.', command.msg.channel);
+    }
+    else {
+        alert('', '반복 재생이 비활성화 되었습니다.', command.msg.channel);
+    }
+
+    return command.msg.react('✅');
 }

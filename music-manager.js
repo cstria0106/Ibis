@@ -24,7 +24,6 @@ exports.cmd = async function (command) {
         case 'play':
         case 'p':
             await play(command);
-            await command.msg.delete();
             return;
 
         case 'skip':
@@ -38,13 +37,11 @@ exports.cmd = async function (command) {
         case 'queue':
         case 'q':
             await printQueue(command);
-            await command.msg.delete();
             return;
 
         case 'nowplaying':
         case 'np':
             await printNowPlaying(command);
-            await command.msg.delete();
             return;
     }
 }
@@ -71,6 +68,8 @@ async function join(command) {
  * @param {Command} command 
  */
 async function leave(command) {
+    var queue = queues.get(command.msg.guild.id);
+
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
     }
@@ -83,7 +82,6 @@ async function leave(command) {
         return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
     }
 
-    var queue = queues.get(command.msg.guild.id);
     queue.playing = false;
 
     queue.guild.voiceConnection.disconnect();
@@ -98,6 +96,10 @@ async function leave(command) {
  */
 async function play(command) {
     var queue = queues.get(command.msg.guild.id);
+
+    if (!command.msg.member.voiceChannel) {
+        return alert('ERROR', '음성 채널에 접속해야 사용 할 수 있는 명령어입니다.', command.msg);
+    }
 
     // 큐가 없으면 새로 구성
     if (!queue) {
@@ -215,7 +217,8 @@ async function startStream(guild, command, music) {
             const embed = new Discord.RichEmbed()
                 .setTitle(`🎵 다음 음악을 재생합니다 - ${music.title}`)
                 .setDescription(`[<@${music.user.id}>]`)
-                .setURL(music.url);
+                .setURL(music.url)
+                .setColor('#00ccff');
             queue.textChannel.send(embed);
         })
         .on('end', function () {
@@ -279,8 +282,9 @@ async function addMusic(command, url) {
 
         const embed = new Discord.RichEmbed()
             .setTitle(`🎵 ${music.title}`)
-            .setDescription(`위 음악을 재생목록에 추가했습니다.`)
-            .setURL(url);
+            .setDescription(`위 음악을 대기열 ${queue.musics.length}번째 위치에 추가했습니다.`)
+            .setURL(url)
+            .setColor('#00ccff');
         await command.msg.channel.send(embed);
     }
 }
@@ -308,7 +312,8 @@ async function addPlaylist(command, url) {
     const embed = new Discord.RichEmbed()
         .setTitle(`🎵 ${listInfo.title}`)
         .setDescription(`위 재생 목록을 통해 대기열에 ${listInfo.total_items}개의 음악을 추가했습니다.`)
-        .setURL(url);
+        .setURL(url)
+        .setColor('#00ccff');
     await command.msg.channel.send(embed);
 }
 
@@ -355,6 +360,7 @@ async function printNowPlaying(command) {
     const embed = new Discord.RichEmbed()
         .setTitle(`🎵 현재 재생 중인 음악 -  ${music.title}`)
         .setDescription(`[<@${music.user.id}>]`)
-        .setURL(music.url);
+        .setURL(music.url)
+        .setColor('#00ccff');
     return command.msg.channel.send(embed);
 }

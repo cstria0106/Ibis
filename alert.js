@@ -7,18 +7,22 @@ const Discord = require('discord.js');
  */
 module.exports = async function (type, text, msg) {
     var icon;
+    const embed = new Discord.RichEmbed()
 
     switch (type) {
         case 'OK':
             icon = '✅';
+            embed.setColor('#00cc00');
             break;
 
         case 'WARNING':
             icon = '⚠';
+            embed.setColor('#eeee00');
             break;
 
         case 'ERROR':
             icon = '❌';
+            embed.setColor('#dd0000');
             break;
 
         default:
@@ -26,10 +30,12 @@ module.exports = async function (type, text, msg) {
             break;
     }
 
-    const embed = new Discord.RichEmbed()
-        .setTitle(`${icon} ${text}`)
-
-    if (icon == '') embed.setTitle(text);
+    if (icon == '') {
+        embed.setTitle(text);
+    }
+    else {
+        embed.setTitle(`${icon} ${text}`);
+    }
 
     await msg.channel.send(embed);
 

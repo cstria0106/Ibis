@@ -119,7 +119,7 @@ async function play(command) {
                     await addMusic(command, command.args[0]);
                 }
             }
-            catch{
+            catch (e) {
                 const embed = new Discord.RichEmbed()
                     .setTitle(`❌ 올바르지 않은 주소입니다.`)
                 await command.msg.channel.send(embed);

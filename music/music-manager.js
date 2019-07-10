@@ -179,9 +179,11 @@ async function play(command) {
 
                             // 취소
                             if (text === 'c') {
-                                answer.delete();
-                                display.delete();
-                                return alert('OK', '검색이 취소되었습니다.', command.msg.channel);
+                                answer.delete().then((i) => {
+                                    display.delete().then((j) => {
+                                        return alert('OK', '검색이 취소되었습니다.', command.msg.channel);
+                                    });
+                                });
                             }
 
                             var num = parseInt(text);
@@ -199,7 +201,9 @@ async function play(command) {
 
                             return;
                         }).catch(err => {
-                            return alert('ERROR', '검색이 취소되었습니다.', command.msg.channel);
+                            display.delete().then((i) => {
+                                return alert('ERROR', '검색이 취소되었습니다.', command.msg.channel);
+                            });
                         });
 
                 });

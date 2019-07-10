@@ -40,8 +40,7 @@ module.exports.cmd = function (command) {
         command.msg.channel.send(embed);
         return;
     }
-
-    if (command.args.length == 1) {
+    else if (command.args.length == 1) {
         // 명령어 설명
         var embed = new Discord.RichEmbed();
 
@@ -57,8 +56,7 @@ module.exports.cmd = function (command) {
         });
 
         if (!element) {
-            alert('ERROR', '해당하는 명령어가 없습니다.', command.msg.channel);
-            return;
+            return alert('ERROR', '해당하는 명령어가 없습니다.', command.msg.channel);
         }
 
         embed.title = `${config.prefix}${element.name}`;
@@ -75,5 +73,8 @@ module.exports.cmd = function (command) {
         }
 
         command.msg.channel.send(embed);
+    }
+    else {
+        return alert('ERROR', '잘못된 명령어입니다.', command.msg.channel);
     }
 }

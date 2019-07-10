@@ -17,6 +17,10 @@ module.exports.route = function (command) {
         case 'nowplaying':
         case 'np':
         case 'repeat':
+        case 'clear':
+        case 'delete':
+        case 'shuffle':
+        case 'join':
             musicManager.cmd(command);
             break;
 

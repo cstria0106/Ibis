@@ -15,6 +15,7 @@ class Queue {
         this.playing = false;
         this.connected = false;
         this.repeat = false;
+        this.shuffle = false;
         /**
          * @type {Music[]}
          */

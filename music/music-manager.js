@@ -47,6 +47,22 @@ exports.cmd = async function (command) {
         case 'repeat':
             await toggleRepeat(command);
             return;
+
+        case 'clear':
+            await clearMusics(command);
+            return;
+
+        case 'delete':
+            await deleteMusic(command);
+            return;
+
+        case 'shuffle':
+            await toggleShuffle(command);
+            return;
+
+        case 'join':
+            await join(command);
+            return;
     }
 }
 
@@ -227,7 +243,15 @@ async function startStream(guild, command, music) {
         })
         .on('end', function () {
             if (queue.playing) {
-                var music = queue.musics.shift();
+                var music = null;
+
+                music = queue.musics.shift();
+
+                if (shuffle) {
+                    var random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
+                    var next = queue.musics.splice(next, 1)[0];
+                    queue.musics.unshift(next);
+                }
 
                 if (queue.repeat) {
                     queue.musics.push(music);
@@ -250,24 +274,28 @@ async function startStream(guild, command, music) {
 async function skip(command) {
     var queue = queues.get(command.msg.guild.id);
 
-    if (queue && queue.musics.length > 0) {
-        if (!queue.connected) {
-            await alert('ERROR', '현재 음악을 재생하고 있지 않습니다.', command.msg.channel);
-        }
-        else {
-            await command.msg.react('✅');
-
-            const embed = new Discord.RichEmbed()
-                .setTitle(`다음 음악이 스킵되었습니다.`)
-                .setDescription(`${queue.musics[0].title}`)
-            await command.msg.channel.send(embed);
-
-            queue.guild.voiceConnection.dispatcher.end();
-        }
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
     }
-    else {
-        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
+
+    if (!queue.connected) {
+        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg);
     }
+
+    if (queue.musics.length == 0) {
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
+    }
+
+    await command.msg.react('✅');
+
+    const embed = new Discord.RichEmbed()
+        .setTitle(`다음 음악이 스킵되었습니다.`)
+        .setDescription(`${queue.musics[0].title}`)
+    await command.msg.channel.send(embed);
+
+    queue.guild.voiceConnection.dispatcher.end();
+
+    return;
 }
 
 /**
@@ -385,14 +413,106 @@ async function printNowPlaying(command) {
 async function toggleRepeat(command) {
     var queue = queues.get(command.msg.guild.id);
 
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+    }
+
     queue.repeat = !queue.repeat;
 
+    await command.msg.react('✅');
+
     if (queue.repeat) {
-        alert('', '반복 재생이 활성화 되었습니다.', command.msg.channel);
+        return alert('', '반복 재생이 활성화 되었습니다.', command.msg.channel);
     }
     else {
-        alert('', '반복 재생이 비활성화 되었습니다.', command.msg.channel);
+        return alert('', '반복 재생이 비활성화 되었습니다.', command.msg.channel);
+    }
+}
+
+/**
+ * 
+ * @param {Command} command 
+ */
+async function clearMusics(command) {
+    var queue = queues.get(command.msg.guild.id);
+
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
     }
 
-    return command.msg.react('✅');
+    var count = queue.musics.length;
+
+    if (command.args.length == 1) {
+        count = parseInt(command.args[0]);
+    }
+
+    if (count == NaN) {
+        return alert('ERROR', '잘못된 명령어입니다.', command.msg);
+    }
+
+    queue.musics.splice(0, count);
+
+    await command.msg.react('✅');
+
+    return alert('', `대기열에서 ${count}개의 음악이 제거되었습니다.`, command.msg.channel);
+}
+
+/**
+ * 
+ * @param {Command} command 
+ */
+async function deleteMusic(command) {
+    var queue = queues.get(command.msg.guild.id);
+
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+    }
+
+    var deleted = 0;
+    var musicTitles = '';
+
+    for (i = 0; i < command.args.length; i++) {
+        var arg = command.args[i];
+        var index = parseInt(element) - deleted - 1;
+
+        if (index != NaN || index < 2 || index > queue.musics.length) {
+            musicTitles += `${queue.musics[i].title}\n`
+            deleted++;
+            queue.musics.splice(index - 1, 1);
+        }
+    }
+
+    if (deleted == 0) {
+        return alert('ERROR', '잘못된 명령어입니다.', command.msg);
+    }
+
+    await command.msg.react('✅');
+
+    const embed = new Discord.RichEmbed()
+        .setTitle(`다음 음악이 대기열에서 제거되었습니다.`)
+        .setDescription(musicTitles)
+    return command.msg.channel.send(embed);
+}
+
+/**
+ * 
+ * @param {Command} command 
+ */
+async function toggleShuffle(command) {
+    var queue = queues.get(command.msg.guild.id);
+
+    if (!queue) {
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+    }
+
+    queue.shuffle = !queue.shuffle;
+
+    await command.msg.react('✅');
+
+    if (queue.shuffle) {
+        return alert('', '셔플이 활성화 되었습니다.', command.msg.channel);
+    }
+    else {
+        return alert('', '셔플이 비활성화 되었습니다.', command.msg.channel);
+    }
 }

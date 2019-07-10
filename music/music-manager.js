@@ -74,17 +74,13 @@ async function join(command) {
     var textChannel = command.msg.channel;
     var voiceChannel = command.msg.member.voiceChannel;
 
-    if (!queue) {
+    if (!queues.has(command.msg.guild.id)) {
         var queue = new Queue(textChannel, voiceChannel, command.msg.guild);
-        await voiceChannel.join();
-        queue.connected = true;
-
         queues.set(command.msg.guild.id, queue);
     }
-    else {
-        await voiceChannel.join();
-        queues.get(command.msg.guild.id).connected = true;
-    }
+
+    await voiceChannel.join();
+    queues.get(command.msg.guild.id).connected = true;
 
     return queue;
 }

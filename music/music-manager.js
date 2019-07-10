@@ -18,8 +18,6 @@ const queues = new Map()
  * @param {Command} command
  */
 exports.cmd = async function (command) {
-    command.msg.guild.id
-
     switch (command.type) {
         case 'play':
         case 'p':
@@ -67,22 +65,29 @@ exports.cmd = async function (command) {
 }
 
 /**
- * 채널에 접속하고 해당 서버의 큐를 생성한다
+ * 채널에 접속한다.
  * @param {Command} command 
  */
 async function join(command) {
     var textChannel = command.msg.channel;
     var voiceChannel = command.msg.member.voiceChannel;
 
+    // 큐가 없다면 새로 생성한다.
     if (!queues.has(command.msg.guild.id)) {
         var queue = new Queue(textChannel, voiceChannel, command.msg.guild);
         queues.set(command.msg.guild.id, queue);
     }
 
+    // 접속
     await voiceChannel.join();
     queues.get(command.msg.guild.id).connected = true;
 
-    return queue;
+    // 명령어가 join 이었다면 메세지를 출력한다.
+    if (command.type == 'join') {
+        return alert('OK', `'${voiceChannel.name}' 음성 채널에 접속했습니다.`, command.msg.channel);
+    }
+
+    return;
 }
 
 /**
@@ -92,24 +97,20 @@ async function join(command) {
 async function leave(command) {
     var queue = queues.get(command.msg.guild.id);
 
-    if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+    // 연결된 음성 채널이 없을 때
+    if (command.msg.guild.voiceConnection) {
+        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg.channel);
     }
 
-    if (!queue.connected) {
-        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg);
-    }
-
-    if (queue.musics.length == 0) {
-        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
-    }
-
+    // dispatcher.end() 가 호출되어 오류가 발생하는 것을 방지하기 위해서 음악을 재생중이지 않은 것으로 설정한다.
     queue.playing = false;
+
+    var channelName = queue.guild.voiceConnection.channel.name;
 
     queue.guild.voiceConnection.disconnect();
     queue.connected = false;
 
-    return alert('OK', '음성 채널에서 나갑니다.', command.msg);
+    return alert('OK', `'${channelName}' 음성 채널에서 나갑니다.`, command.msg.channel);
 }
 
 /**
@@ -120,22 +121,15 @@ async function play(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!command.msg.member.voiceChannel) {
-        return alert('ERROR', '음성 채널에 접속해야 사용 할 수 있는 명령어입니다.', command.msg);
+        return alert('ERROR', '음성 채널에 접속해야 사용 할 수 있는 명령어입니다.', command.msg.channel);
     }
 
-    // 큐가 없으면 새로 구성
-    if (!queue) {
-        queue = await join(command);
-    }
-    else {
-        queue.voiceChannel = command.msg.member.voiceChannel;
-        queue.textChannel = command.msg.channel;
-        await queue.voiceChannel.join();
-
-        queue.connected = true;
-    }
+    // 음성 채널에 접속한다. 큐가 없으면 새로 생성되고, 있다면 큐의 채널이 갱신된다.
+    await join(command);
+    queue = queues.get(command.msg.guild.id);
 
     if (command.args.length > 0) {
+        // 유튜브 주소
         if (command.args[0].startsWith('https://')) {
             try {
                 if (command.args[0].includes('list=')) {
@@ -148,12 +142,15 @@ async function play(command) {
                 }
             }
             catch (e) {
-                return alert('ERROR', '올바르지 않은 주소입니다.', command.msg);
+                return alert('ERROR', '올바르지 않은 주소입니다.', command.msg.channel);
             }
         }
+        // 검색
         else {
+            // 인자의 문자열을 합쳐 검색 키워드를 생성한다
             var keyword = command.args.join(' ');
 
+            // 검색
             ytSearch(keyword, function (err, r) {
                 if (err) console.log(err);
 
@@ -167,24 +164,24 @@ async function play(command) {
 
                 text += 'c - 취소\n```';
 
-                var display = null;
-                command.msg.channel.send(text).then((m) => {
-                    var display = m;
-
+                command.msg.channel.send(text).then((display) => {
                     const filter = (msg) => msg.author.id == command.msg.author.id;
                     command.msg.channel.awaitMessages(filter, { max: 1, time: 10000 })
                         .then(collected => {
-                            var text = collected.first().content;
+                            var answer = collected.first();
+                            var text = answer.content;
+
+                            // 취소
                             if (text === 'c') {
-                                collected.first().delete();
+                                answer.delete();
                                 display.delete();
-                                return alert('OK', '검색이 취소되었습니다.', command.msg);
+                                return alert('OK', '검색이 취소되었습니다.', command.msg.channel);
                             }
 
                             var num = parseInt(text);
                             var url = `https://www.youtube.com${videos[num - 1].url}`;
 
-                            collected.first().delete();
+                            answer.delete();
                             display.delete();
 
                             addMusic(command, url).then(() => {
@@ -196,20 +193,19 @@ async function play(command) {
 
                             return;
                         }).catch(err => {
-                            return alert('ERROR', '검색이 취소되었습니다.', command.msg);
+                            return alert('ERROR', '검색이 취소되었습니다.', command.msg.channel);
                         });
 
                 });
             });
 
+            // ytsearch가 비동기적으로 작동하기에 아래 코드가 실행되어서는 안됨.
             return;
         }
     }
 
     if (queue.musics.length == 0) {
-        if (queue.musics.length == 0) {
-            return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
-        }
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 
     if (!queue.playing) {
@@ -225,17 +221,22 @@ async function play(command) {
 async function startStream(guild, command, music) {
     var queue = queues.get(guild.id);
 
+    // 더 이상 재생 할 음악이 없으면 종료
     if (queue.musics.length == 0) {
         queue.playing = false;
-        queue.connected = false;
+
         queue.guild.voiceConnection.disconnect();
-        queues.delete(guild);
+        queue.connected = false;
+
+        // 해당 서버의 큐를 제거한다
+        queues.delete(guild.id);
 
         return alert('', '모든 음악의 재생을 종료하여 음성 채널에서 나갑니다.', queue.textChannel);
     }
 
     const dispatcher = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }))
         .on('start', function () {
+            // 음악 재생 시작
             const embed = new Discord.RichEmbed()
                 .setTitle(`🎵 다음 음악을 재생합니다 - ${music.title}`)
                 .setDescription(`[<@${music.user.id}>]`)
@@ -244,19 +245,20 @@ async function startStream(guild, command, music) {
             queue.textChannel.send(embed);
         })
         .on('end', function () {
+            // 음악 재생 종료 / 채널에서 나감
             if (queue.playing) {
-                var music = null;
-
-                music = queue.musics.shift();
-
-                if (shuffle) {
-                    var random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
-                    var next = queue.musics.splice(next, 1)[0];
-                    queue.musics.unshift(next);
-                }
+                // 재생하고 있었던 음악을 저장
+                var lastMusic = queue.musics.shift();
 
                 if (queue.repeat) {
-                    queue.musics.push(music);
+                    // 반복 재생이 켜져있으면 맨 앞에서 제거한 현재 음악을 다시 뒤에 넣는다.
+                    queue.musics.push(lastMusic);
+                }
+
+                if (queue.shuffle) {
+                    // 셔플이 켜져있으면 다음 음악을 랜덤으로 골라 대기열의 맨 앞에 넣는다.
+                    var random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
+                    queue.musics.unshift(queue.musics.splice(random, 1)[0]);
                 }
 
                 startStream(guild, command, queue.musics[0]);
@@ -266,26 +268,28 @@ async function startStream(guild, command, music) {
             console.log(err);
         });
 
+
+    // 뿅
     dispatcher.setVolumeLogarithmic(1 / 5);
 }
 
 /**
- * 
+ * 현재 음악을 스킵한다.
  * @param {Command} command 
  */
 async function skip(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     if (!queue.connected) {
-        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg);
+        return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg.channel);
     }
 
     if (queue.musics.length == 0) {
-        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 
     await command.msg.react('✅');
@@ -301,7 +305,7 @@ async function skip(command) {
 }
 
 /**
- * 
+ * 음악을 대기열에 추가한다.
  * @param {Command} command 
  * @param {String} url
  */
@@ -329,7 +333,7 @@ async function addMusic(command, url) {
 }
 
 /**
- * 
+ * 재생 목록을 대기열에 추가한다.
  * @param {Command} command 
  * @param {String} url
  */
@@ -416,7 +420,7 @@ async function toggleRepeat(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     queue.repeat = !queue.repeat;
@@ -439,7 +443,7 @@ async function clearMusics(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     var count = queue.musics.length;
@@ -449,10 +453,18 @@ async function clearMusics(command) {
     }
 
     if (count == NaN) {
-        return alert('ERROR', '잘못된 명령어입니다.', command.msg);
+        return alert('ERROR', '잘못된 명령어입니다.', command.msg.channel);
     }
 
-    queue.musics.splice(0, count);
+    if (count > queue.musics.length - 1) {
+        count = queue.musics.length - 1;
+    }
+
+    if (count < 0) {
+        count = 0;
+    }
+
+    queue.musics.splice(1, count);
 
     await command.msg.react('✅');
 
@@ -467,7 +479,7 @@ async function deleteMusic(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     var deleted = 0;
@@ -475,17 +487,18 @@ async function deleteMusic(command) {
 
     for (i = 0; i < command.args.length; i++) {
         var arg = command.args[i];
-        var index = parseInt(element) - deleted - 1;
+        var index = parseInt(arg) - deleted - 1;
 
-        if (index != NaN || index < 2 || index > queue.musics.length) {
-            musicTitles += `${queue.musics[i].title}\n`
+        if (index != NaN && index > 0 && index < queue.musics.length) {
+            musicTitles += `${queue.musics[index].title}\n`
+            queue.musics.splice(index, 1);
+
             deleted++;
-            queue.musics.splice(index - 1, 1);
         }
     }
 
     if (deleted == 0) {
-        return alert('ERROR', '잘못된 명령어입니다.', command.msg);
+        return alert('ERROR', '잘못된 명령어입니다.', command.msg.channel);
     }
 
     await command.msg.react('✅');
@@ -504,7 +517,7 @@ async function toggleShuffle(command) {
     var queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
-        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg);
+        return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
     }
 
     queue.shuffle = !queue.shuffle;

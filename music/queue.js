@@ -12,10 +12,13 @@ class Queue {
         this.textChannel = textChannel;
         this.voiceChannel = voiceChannel;
         this.guild = guild;
+
         this.playing = false;
         this.connected = false;
+
         this.repeat = false;
         this.shuffle = false;
+
         /**
          * @type {Music[]}
          */

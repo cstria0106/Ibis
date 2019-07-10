@@ -74,13 +74,19 @@ async function join(command) {
 
     // 큐가 없다면 새로 생성한다.
     if (!queues.has(command.msg.guild.id)) {
-        var queue = new Queue(textChannel, voiceChannel, command.msg.guild);
+        var queue = new Queue();
         queues.set(command.msg.guild.id, queue);
     }
 
     // 접속
     await voiceChannel.join();
-    queues.get(command.msg.guild.id).connected = true;
+
+    var queue = queues.get(command.msg.guild.id);
+
+    queue.connected = true;
+    queue.textChannel = textChannel;
+    queue.voiceChannel = voiceChannel;
+    queue.guild = command.msg.guild;
 
     // 명령어가 join 이었다면 메세지를 출력한다.
     if (command.type == 'join') {

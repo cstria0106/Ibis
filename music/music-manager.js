@@ -104,7 +104,7 @@ async function leave(command) {
     var queue = queues.get(command.msg.guild.id);
 
     // 연결된 음성 채널이 없을 때
-    if (command.msg.guild.voiceConnection) {
+    if (!queue || !queue.connected) {
         return alert('ERROR', '현재 음성 채널에 접속되어 있지 않습니다.', command.msg.channel);
     }
 

@@ -22,8 +22,9 @@ module.exports.init = function () {
 module.exports.cmd = function (command) {
     if (command.args.length == 0) {
         // 명령어 목록
-        var embed = new Discord.RichEmbed();
-        embed.setDescription(`명령어 목록은 다음과 같습니다.\n\`${config.prefix}help <명령어>\`를 통해 자세한 설명을 볼 수 있습니다.`);
+        const embed = new Discord.RichEmbed();
+        embed.setDescription(`명령어 목록은 다음과 같습니다.\n\`${config.prefix}help <명령어>\`를 통해 자세한 설명을 볼 수 있습니다.`)
+        embed.setColor('#00ccff');
 
         commands.forEach(set => {
             const list = set.list;
@@ -42,7 +43,7 @@ module.exports.cmd = function (command) {
     }
     else if (command.args.length == 1) {
         // 명령어 설명
-        var embed = new Discord.RichEmbed();
+        const embed = new Discord.RichEmbed();
 
         var element = null;
 
@@ -59,9 +60,10 @@ module.exports.cmd = function (command) {
             return alert('ERROR', '해당하는 명령어가 없습니다.', command.msg.channel);
         }
 
-        embed.title = `${config.prefix}${element.name}`;
-        embed.description = element.description;
+        embed.setTitle(`${config.prefix}${element.name}`);
+        embed.setDescription(element.description);
         embed.addField('사용법', `\`${config.prefix}${element.usage}\``, true);
+        embed.setColor('#00ccff');
 
         if (element.examples.length > 0) {
             var exampleText = '';

@@ -6,7 +6,7 @@ const Command = require('./system/command');
 const router = require('./system/router');
 const help = require('./utility/help/help')
 
-var client = new Discord.Client();
+const client = new Discord.Client();
 
 client.on('ready', function () {
     client.user.setActivity(config.prefix + 'help', { type: "LISTENING" });

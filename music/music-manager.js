@@ -354,8 +354,9 @@ async function skip(command) {
     await command.msg.react('✅');
 
     const embed = new Discord.RichEmbed()
-        .setTitle(`다음 음악이 스킵되었습니다.`)
+        .setTitle(`🎵 다음 음악이 스킵되었습니다.`)
         .setDescription(`${queue.musics[0].title}`)
+        .setColor('#00ccff');
     await command.msg.channel.send(embed);
 
     queue.guild.voiceConnection.dispatcher.end();

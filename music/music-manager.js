@@ -213,7 +213,7 @@ async function play(command) {
 
                 command.msg.channel.send(text).then((display) => {
                     const filter = (msg) => msg.author.id == command.msg.author.id;
-                    command.msg.channel.awaitMessages(filter, { max: 1, time: 10000 })
+                    command.msg.channel.awaitMessages(filter, { max: 1, time: global.searchTime * 1000 })
                         .then(collected => {
                             var answer = collected.first();
                             var text = answer.content;

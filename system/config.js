@@ -1,3 +1,4 @@
 module.exports = {
-    prefix: '!'
+    prefix: '?',
+    noQueueDisconnection: false
 } 

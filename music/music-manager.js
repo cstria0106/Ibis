@@ -6,6 +6,8 @@ const Command = require('../system/command');
 const Queue = require('./queue');
 const Music = require('./music');
 const alert = require('../utility/alert');
+const config = require('../system/config');
+const global = require('../system/global');
 
 /**
  * 
@@ -88,6 +90,15 @@ async function join(command) {
     queue.voiceChannel = voiceChannel;
     queue.guild = command.msg.guild;
 
+    queue.idleTime = 0;
+
+    if (!queue.idle) {
+        queue.idle = true;
+        var id = setInterval(() => {
+            return checkTimeout(command, id);
+        }, 1000);
+    }
+
     // 명령어가 join 이었다면 메세지를 출력한다.
     if (command.type == 'join') {
         return alert('OK', `'${voiceChannel.name}' 음성 채널에 접속했습니다.`, command.msg.channel);
@@ -117,6 +128,39 @@ async function leave(command) {
     queue.connected = false;
 
     return alert('OK', `'${channelName}' 음성 채널에서 나갑니다.`, command.msg.channel);
+}
+
+/**
+ * 
+ * @param {Command} command 
+ */
+async function checkTimeout(command, intervalID) {
+    var queue = queues.get(command.msg.guild.id);
+
+    if (!queue || !queue.connected) {
+        clearInterval(intervalID);
+        if (queue) queue.idle = false;
+        return;
+    }
+
+    if (queue.playing) {
+        queue.idleTime = 0;
+    }
+    else {
+        queue.idleTime += 1;
+    }
+
+
+    console.log(queue.idleTime);
+
+    if (queue.idleTime >= global.disconnectionTime) {
+        alert("WARNING", "자동으로 연결을 종료합니다.", command.msg.channel);
+        command.msg.guild.voiceConnection.disconnect();
+        clearInterval(intervalID);
+
+        queues.delete(command.msg.guild.id);
+        return;
+    }
 }
 
 /**
@@ -220,7 +264,7 @@ async function play(command) {
 
     if (!queue.playing) {
         queue.playing = true;
-        startStream(command.msg.guild, command, queue.musics[0]);
+        return startStream(command.msg.guild, command, queue.musics[0]);
     }
 }
 /**
@@ -235,13 +279,16 @@ async function startStream(guild, command, music) {
     if (queue.musics.length == 0) {
         queue.playing = false;
 
-        queue.guild.voiceConnection.disconnect();
-        queue.connected = false;
+        if (config.noQueueDisconnection) {
+            queue.guild.voiceConnection.disconnect();
+            queue.connected = false;
 
-        // 해당 서버의 큐를 제거한다
-        queues.delete(guild.id);
+            // 해당 서버의 큐를 제거한다
+            queues.delete(guild.id);
+            return alert('', '모든 음악의 재생을 종료하여 음성 채널에서 나갑니다.', queue.textChannel);
+        }
 
-        return alert('', '모든 음악의 재생을 종료하여 음성 채널에서 나갑니다.', queue.textChannel);
+        return;
     }
 
     const dispatcher = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }))
@@ -253,6 +300,7 @@ async function startStream(guild, command, music) {
                 .setURL(music.url)
                 .setColor('#00ccff');
             queue.textChannel.send(embed);
+            clearTimeout();
         })
         .on('end', function () {
             // 음악 재생 종료 / 채널에서 나감

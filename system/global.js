@@ -1,3 +1,4 @@
 module.exports = {
-    token: 'TOKEN HERE'
+    token: 'TOKEN HERE',
+    disconnectionTime: 30
 } 

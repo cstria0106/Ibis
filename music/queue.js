@@ -6,6 +6,9 @@ class Queue {
         this.playing = false;
         this.connected = false;
 
+        this.idle = false;
+        this.idleTime = 0;
+
         this.repeat = false;
         this.shuffle = false;
 

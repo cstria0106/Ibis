@@ -150,9 +150,6 @@ async function checkTimeout(command, intervalID) {
         queue.idleTime += 1;
     }
 
-
-    console.log(queue.idleTime);
-
     if (queue.idleTime >= global.disconnectionTime) {
         alert("WARNING", "자동으로 연결을 종료합니다.", command.msg.channel);
         command.msg.guild.voiceConnection.disconnect();

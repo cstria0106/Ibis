@@ -1,9 +1,8 @@
 # Ibis
-Ibis is a discord bot.
+Ibis는 NodeJS로 짜여진 음악 재생용 디스코드 봇입니다.
 
-## Feature
+## Features
 ```
-1. Music
-2. Music
-3. Music...
+1. 음악 재생
+2. 도움말
 ```

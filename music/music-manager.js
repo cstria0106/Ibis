@@ -71,19 +71,19 @@ exports.cmd = async function (command) {
  * @param {Command} command 
  */
 async function join(command) {
-    var textChannel = command.msg.channel;
-    var voiceChannel = command.msg.member.voiceChannel;
+    const textChannel = command.msg.channel;
+    const voiceChannel = command.msg.member.voiceChannel;
 
     // 큐가 없다면 새로 생성한다.
     if (!queues.has(command.msg.guild.id)) {
-        var queue = new Queue();
+        const queue = new Queue();
         queues.set(command.msg.guild.id, queue);
     }
 
     // 접속
     await voiceChannel.join();
 
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     queue.connected = true;
     queue.textChannel = textChannel;
@@ -94,7 +94,7 @@ async function join(command) {
 
     if (!queue.idle) {
         queue.idle = true;
-        var id = setInterval(() => {
+        const id = setInterval(() => {
             return checkTimeout(command, id);
         }, 1000);
     }
@@ -112,7 +112,7 @@ async function join(command) {
  * @param {Command} command 
  */
 async function leave(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     // 연결된 음성 채널이 없을 때
     if (!queue || !queue.connected) {
@@ -122,7 +122,7 @@ async function leave(command) {
     // dispatcher.end() 가 호출되어 오류가 발생하는 것을 방지하기 위해서 음악을 재생중이지 않은 것으로 설정한다.
     queue.playing = false;
 
-    var channelName = queue.guild.voiceConnection.channel.name;
+    const channelName = queue.guild.voiceConnection.channel.name;
 
     queue.guild.voiceConnection.disconnect();
     queue.connected = false;
@@ -135,7 +135,7 @@ async function leave(command) {
  * @param {Command} command 
  */
 async function checkTimeout(command, intervalID) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue || !queue.connected) {
         clearInterval(intervalID);
@@ -195,7 +195,7 @@ async function play(command) {
         // 검색
         else {
             // 인자의 문자열을 합쳐 검색 키워드를 생성한다
-            var keyword = command.args.join(' ');
+            const keyword = command.args.join(' ');
 
             // 검색
             ytSearch(keyword, function (err, r) {
@@ -215,7 +215,7 @@ async function play(command) {
                     const filter = (msg) => msg.author.id == command.msg.author.id;
                     command.msg.channel.awaitMessages(filter, { max: 1, time: global.searchTime * 1000 })
                         .then(collected => {
-                            var answer = collected.first();
+                            const answer = collected.first();
                             var text = answer.content;
 
                             // 취소
@@ -227,8 +227,8 @@ async function play(command) {
                                 });
                             }
 
-                            var num = parseInt(text);
-                            var url = `https://www.youtube.com${videos[num - 1].url}`;
+                            const num = parseInt(text);
+                            const url = `https://www.youtube.com${videos[num - 1].url}`;
 
                             answer.delete();
                             display.delete();
@@ -270,7 +270,7 @@ async function play(command) {
  * @param {Music} music
  */
 async function startStream(guild, command, music) {
-    var queue = queues.get(guild.id);
+    const queue = queues.get(guild.id);
 
     // 더 이상 재생 할 음악이 없으면 종료
     if (queue.musics.length == 0) {
@@ -303,7 +303,7 @@ async function startStream(guild, command, music) {
             // 음악 재생 종료 / 채널에서 나감
             if (queue.playing) {
                 // 재생하고 있었던 음악을 저장
-                var lastMusic = queue.musics.shift();
+                const lastMusic = queue.musics.shift();
 
                 if (queue.repeat) {
                     // 반복 재생이 켜져있으면 맨 앞에서 제거한 현재 음악을 다시 뒤에 넣는다.
@@ -312,8 +312,12 @@ async function startStream(guild, command, music) {
 
                 if (queue.shuffle) {
                     // 셔플이 켜져있으면 다음 음악을 랜덤으로 골라 대기열의 맨 앞에 넣는다.
-                    var random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
-                    queue.musics.unshift(queue.musics.splice(random, 1)[0]);
+                    const random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
+                    const next = queue.musics.splice(random, 1)[0];
+
+                    if (next) {
+                        queue.musics.unshift(next);
+                    }
                 }
 
                 startStream(guild, command, queue.musics[0]);
@@ -333,7 +337,7 @@ async function startStream(guild, command, music) {
  * @param {Command} command 
  */
 async function skip(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
@@ -366,7 +370,7 @@ async function skip(command) {
  */
 async function addMusic(command, url) {
     if (command.msg.member.voiceChannel) {
-        var queue = queues.get(command.msg.guild.id);
+        const queue = queues.get(command.msg.guild.id);
 
         const musicInfo = await ytdl.getInfo(url);
 
@@ -393,9 +397,9 @@ async function addMusic(command, url) {
  * @param {String} url
  */
 async function addPlaylist(command, url) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
-    var listInfo = await ytpl(url);
+    const listInfo = await ytpl(url);
 
     listInfo.items.forEach(function (item) {
         const music = new Music();
@@ -420,7 +424,7 @@ async function addPlaylist(command, url) {
  * @param {Command} command 
  */
 async function printQueue(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 존재하지 않습니다.\n```');
@@ -448,7 +452,7 @@ async function printQueue(command) {
  * @param {Command} command 
  */
 async function printNowPlaying(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
@@ -458,7 +462,7 @@ async function printNowPlaying(command) {
         return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 
-    var music = queue.musics[0];
+    const music = queue.musics[0];
     const embed = new Discord.RichEmbed()
         .setTitle(`🎵 현재 재생 중인 음악 -  ${music.title}`)
         .setDescription(`[<@${music.user.id}>]`)
@@ -472,7 +476,7 @@ async function printNowPlaying(command) {
  * @param {Command} command 
  */
 async function toggleRepeat(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
@@ -495,7 +499,7 @@ async function toggleRepeat(command) {
  * @param {Command} command 
  */
 async function clearMusics(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
@@ -531,7 +535,7 @@ async function clearMusics(command) {
  * @param {Command} command 
  */
 async function deleteMusic(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);
@@ -541,8 +545,8 @@ async function deleteMusic(command) {
     var musicTitles = '';
 
     for (i = 0; i < command.args.length; i++) {
-        var arg = command.args[i];
-        var index = parseInt(arg) - deleted - 1;
+        const arg = command.args[i];
+        const index = parseInt(arg) - deleted - 1;
 
         if (index != NaN && index > 0 && index < queue.musics.length) {
             musicTitles += `${queue.musics[index].title}\n`
@@ -569,7 +573,7 @@ async function deleteMusic(command) {
  * @param {Command} command 
  */
 async function toggleShuffle(command) {
-    var queue = queues.get(command.msg.guild.id);
+    const queue = queues.get(command.msg.guild.id);
 
     if (!queue) {
         return alert('ERROR', '현재 대기열이 존재하지 않습니다.', command.msg.channel);

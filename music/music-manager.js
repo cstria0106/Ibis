@@ -20,49 +20,55 @@ const queues = new Map()
  * @param {Command} command
  */
 exports.cmd = async function (command) {
-    switch (command.type) {
-        case 'play':
-        case 'p':
-            await play(command);
-            return;
+    try {
 
-        case 'skip':
-            await skip(command);
-            return;
+        switch (command.type) {
+            case 'play':
+            case 'p':
+                await play(command);
+                return;
 
-        case 'leave':
-            await leave(command);
-            return;
+            case 'skip':
+                await skip(command);
+                return;
 
-        case 'queue':
-        case 'q':
-            await printQueue(command);
-            return;
+            case 'leave':
+                await leave(command);
+                return;
 
-        case 'nowplaying':
-        case 'np':
-            await printNowPlaying(command);
-            return;
+            case 'queue':
+            case 'q':
+                await printQueue(command);
+                return;
 
-        case 'repeat':
-            await toggleRepeat(command);
-            return;
+            case 'nowplaying':
+            case 'np':
+                await printNowPlaying(command);
+                return;
 
-        case 'clear':
-            await clearMusics(command);
-            return;
+            case 'repeat':
+                await toggleRepeat(command);
+                return;
 
-        case 'delete':
-            await deleteMusic(command);
-            return;
+            case 'clear':
+                await clearMusics(command);
+                return;
 
-        case 'shuffle':
-            await toggleShuffle(command);
-            return;
+            case 'delete':
+                await deleteMusic(command);
+                return;
 
-        case 'join':
-            await join(command);
-            return;
+            case 'shuffle':
+                await toggleShuffle(command);
+                return;
+
+            case 'join':
+                await join(command);
+                return;
+        }
+    }
+    catch (e) {
+        console.log(e);
     }
 }
 

@@ -189,6 +189,7 @@ async function play(command) {
                 }
             }
             catch (e) {
+                console.log(e);
                 return alert('ERROR', '올바르지 않은 주소입니다.', command.msg.channel);
             }
         }

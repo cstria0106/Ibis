@@ -371,11 +371,10 @@ async function skip(command) {
  */
 async function addMusic(command, url) {
     if (command.msg.member.voiceChannel) {
+        console.log(url);
         const queue = queues.get(command.msg.guild.id);
 
         const musicInfo = await ytdl.getInfo(url);
-
-        console.log(musicInfo);
 
         const music = new Music();
 

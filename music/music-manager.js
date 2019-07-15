@@ -20,55 +20,49 @@ const queues = new Map()
  * @param {Command} command
  */
 exports.cmd = async function (command) {
-    try {
+    switch (command.type) {
+        case 'play':
+        case 'p':
+            await play(command);
+            return;
 
-        switch (command.type) {
-            case 'play':
-            case 'p':
-                await play(command);
-                return;
+        case 'skip':
+            await skip(command);
+            return;
 
-            case 'skip':
-                await skip(command);
-                return;
+        case 'leave':
+            await leave(command);
+            return;
 
-            case 'leave':
-                await leave(command);
-                return;
+        case 'queue':
+        case 'q':
+            await printQueue(command);
+            return;
 
-            case 'queue':
-            case 'q':
-                await printQueue(command);
-                return;
+        case 'nowplaying':
+        case 'np':
+            await printNowPlaying(command);
+            return;
 
-            case 'nowplaying':
-            case 'np':
-                await printNowPlaying(command);
-                return;
+        case 'repeat':
+            await toggleRepeat(command);
+            return;
 
-            case 'repeat':
-                await toggleRepeat(command);
-                return;
+        case 'clear':
+            await clearMusics(command);
+            return;
 
-            case 'clear':
-                await clearMusics(command);
-                return;
+        case 'delete':
+            await deleteMusic(command);
+            return;
 
-            case 'delete':
-                await deleteMusic(command);
-                return;
+        case 'shuffle':
+            await toggleShuffle(command);
+            return;
 
-            case 'shuffle':
-                await toggleShuffle(command);
-                return;
-
-            case 'join':
-                await join(command);
-                return;
-        }
-    }
-    catch (e) {
-        console.log(e);
+        case 'join':
+            await join(command);
+            return;
     }
 }
 
@@ -380,6 +374,8 @@ async function addMusic(command, url) {
         const queue = queues.get(command.msg.guild.id);
 
         const musicInfo = await ytdl.getInfo(url);
+
+        console.log(musicInfo);
 
         const music = new Music();
 

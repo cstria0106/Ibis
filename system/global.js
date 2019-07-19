@@ -1,5 +1,9 @@
+const fs = require('fs');
+
 module.exports = {
-    token: 'TOKEN HERE',
     disconnectionTime: 60,
-    searchTime: 30
+    searchTime: 30,
+    getToken: function () {
+        return fs.readFileSync('token.txt', 'utf8');
+    }
 } 

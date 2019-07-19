@@ -21,4 +21,4 @@ client.on('message', function (msg) {
     }
 });
 
-client.login(global.token);
+client.login(global.getToken());

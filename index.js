@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
 const global = require('./system/global');
 const config = require('./system/config');
-const musicManager = require('./music/music-manager');
 const Command = require('./system/command');
 const router = require('./system/router');
 const help = require('./utility/help/help')
+const fs = require('fs');
 
 const client = new Discord.Client();
 
@@ -21,4 +21,10 @@ client.on('message', function (msg) {
     }
 });
 
-client.login(global.getToken());
+fs.readFile('token.txt', 'utf-8', function (err, token) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+    client.login(token);
+})

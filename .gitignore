@@ -61,4 +61,4 @@ typings/
 .next
 
 *.exe
-system/token.txt
+token.txt

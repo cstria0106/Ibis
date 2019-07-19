@@ -4,6 +4,6 @@ module.exports = {
     disconnectionTime: 60,
     searchTime: 30,
     getToken: function () {
-        return fs.readFileSync('token.txt', 'utf8');
+        return fs.readFileSync('system/token.txt', 'utf8');
     }
 } 

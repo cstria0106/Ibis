@@ -31,7 +31,7 @@ module.exports.cmd = function (command) {
 
             var value = '';
             list.forEach(element => {
-                value += `\`${config.prefix}${element.name}\`\n`;
+                value += `\`${config.prefix}${element.name.split('|')[0]}\`\n`;
             });
 
             const name = set.category;
@@ -45,30 +45,34 @@ module.exports.cmd = function (command) {
         // 명령어 설명
         const embed = new Discord.RichEmbed();
 
-        var element = null;
+        var cmd;
 
-        commands.some(set => {
-            set.list.some(kafuuchino => {
-                if (kafuuchino.name == command.args[0]) element = kafuuchino;
-                return kafuuchino.name == command.args[0];
+        commands.forEach(set => {
+            set.list.some(element => {
+                if (element.name.split('|').includes(command.args[0])) {
+                    cmd = element;
+                }
+                return cmd;
             });
 
-            return element;
+            return cmd;
         });
 
-        if (!element) {
+        console.log(cmd);
+
+        if (!cmd) {
             return alert('ERROR', '해당하는 명령어가 없습니다.', command.msg.channel);
         }
 
-        embed.setTitle(`${config.prefix}${element.name}`);
-        embed.setDescription(element.description);
-        embed.addField('사용법', `\`${config.prefix}${element.usage}\``, true);
+        embed.setTitle(`${config.prefix}${cmd.name.split('|')[0]}`);
+        embed.setDescription(cmd.description);
+        embed.addField('사용법', `\`${config.prefix}${cmd.usage}\``, true);
         embed.setColor('#00ccff');
 
-        if (element.examples.length > 0) {
+        if (cmd.examples.length > 0) {
             var exampleText = '';
 
-            element.examples.forEach(example => {
+            cmd.examples.forEach(example => {
                 exampleText += `\`${config.prefix}${example.command}\` - ${example.description}\n`;
             });
             embed.addField('예제', exampleText, false);

@@ -23,7 +23,7 @@
         "category": "음악",
         "list": [
             {
-                "name": "play",
+                "name": "play|p",
                 "description": "유튜브에서 음악을 검색하거나 재생할 수 있습니다.",
                 "usage": "(p)lay <음악>",
                 "examples": [
@@ -60,13 +60,13 @@
                 "examples": []
             },
             {
-                "name": "queue",
+                "name": "queue|q",
                 "description": "현재 대기열을 출력합니다.",
                 "usage": "(q)ueue",
                 "examples": []
             },
             {
-                "name": "nowplaying",
+                "name": "nowplaying|np",
                 "description": "현재 재생중인 음악을 보여줍니다.",
                 "usage": "nowplaying|np",
                 "examples": []

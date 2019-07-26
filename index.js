@@ -26,5 +26,6 @@ fs.readFile('token.txt', 'utf-8', function (err, token) {
         console.log(err);
         return;
     }
-    client.login(token);
+
+    client.login(token.trim());
 })

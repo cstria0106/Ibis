@@ -31,6 +31,11 @@ class Queue {
          * @type {Music[]}
          */
         this.musics = [];
+
+        /**
+         * @type {Discord.StreamDispatcher}
+         */
+        this.stream = null;
     }
 }
 

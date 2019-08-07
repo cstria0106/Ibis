@@ -8,6 +8,7 @@ const Music = require('./music');
 const alert = require('../utility/alert');
 const config = require('../system/config');
 const global = require('../system/global');
+const util = require('util');
 
 /**
  * 
@@ -289,48 +290,51 @@ async function startStream(guild, command, music) {
         return;
     }
 
-    const dispatcher = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }))
-        .on('start', function () {
-            // 음악 재생 시작
-            const embed = new Discord.RichEmbed()
-                .setTitle(`🎵 다음 음악을 재생합니다 - ${music.title}`)
-                .setDescription(`[<@${music.user.id}>]`)
-                .setURL(music.url)
-                .setColor('#00ccff');
-            queue.textChannel.send(embed);
-            clearTimeout();
-        })
-        .on('end', function () {
-            // 음악 재생 종료 / 채널에서 나감
-            if (queue.playing) {
-                // 재생하고 있었던 음악을 저장
-                const lastMusic = queue.musics.shift();
+    queue.stream = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }));
 
-                if (queue.repeat) {
-                    // 반복 재생이 켜져있으면 맨 앞에서 제거한 현재 음악을 다시 뒤에 넣는다.
-                    queue.musics.push(lastMusic);
-                }
+    queue.stream.on('start', function () {
+        // 음악 재생 시작
+        const embed = new Discord.RichEmbed()
+            .setTitle(`🎵 다음 음악을 재생합니다 - ${music.title}`)
+            .setDescription(`[<@${music.user.id}>]`)
+            .setURL(music.url)
+            .setColor('#00ccff');
+        queue.textChannel.send(embed);
+        clearTimeout();
+    })
 
-                if (queue.shuffle) {
-                    // 셔플이 켜져있으면 다음 음악을 랜덤으로 골라 대기열의 맨 앞에 넣는다.
-                    const random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
-                    const next = queue.musics.splice(random, 1)[0];
+    queue.stream.on('end', function () {
+        // 음악 재생 종료 / 채널에서 나감
+        if (queue.playing) {
+            // 재생하고 있었던 음악을 저장
+            const lastMusic = queue.musics.shift();
+            queue.stream = null;
 
-                    if (next) {
-                        queue.musics.unshift(next);
-                    }
-                }
-
-                startStream(guild, command, queue.musics[0]);
+            if (queue.repeat) {
+                // 반복 재생이 켜져있으면 맨 앞에서 제거한 현재 음악을 다시 뒤에 넣는다.
+                queue.musics.push(lastMusic);
             }
-        })
-        .on('error', function (err) {
-            console.log(err);
-        });
 
+            if (queue.shuffle) {
+                // 셔플이 켜져있으면 다음 음악을 랜덤으로 골라 대기열의 맨 앞에 넣는다.
+                const random = Math.floor(Math.random() * queue.musics.length - 1) + 1;
+                const next = queue.musics.splice(random, 1)[0];
 
-    // 뿅
-    dispatcher.setVolumeLogarithmic(1 / 5);
+                if (next) {
+                    queue.musics.unshift(next);
+                }
+            }
+
+            startStream(guild, command, queue.musics[0]);
+        }
+    })
+
+    queue.stream.on('error', function (err) {
+        console.log(err);
+    });
+
+    // 볼륨 설정
+    queue.stream.setVolumeLogarithmic(1 / 5);
 }
 
 /**
@@ -381,6 +385,7 @@ async function addMusic(command, url) {
         music.title = musicInfo.title;
         music.url = url;
         music.user = command.msg.author;
+        music.time = Number(musicInfo.length_seconds) * 1000;
 
         queue.musics.push(music);
 
@@ -409,6 +414,10 @@ async function addPlaylist(command, url) {
         music.title = item.title;
         music.url = item.url_simple;
         music.user = command.msg.author;
+        const timestring = item.duration.split(':');
+        const minute = Number(timestring[0]);
+        const second = Number(timestring[1]);
+        music.time = (minute * 60 + second) * 1000;
 
         queue.musics.push(music);
     });
@@ -467,10 +476,23 @@ async function printNowPlaying(command) {
     const music = queue.musics[0];
     const embed = new Discord.RichEmbed()
         .setTitle(`🎵 현재 재생 중인 음악 -  ${music.title}`)
-        .setDescription(`[<@${music.user.id}>]`)
+        .setDescription(`${getTimeString(queue.stream.time)} / ${getTimeString(music.time)}\n[<@${music.user.id}>]`)
         .setURL(music.url)
         .setColor('#00ccff');
     return command.msg.channel.send(embed);
+}
+
+/**
+ * @param {Number} ms 
+ */
+function getTimeString(ms) {
+    var time = Math.floor(ms / 1000);
+    var minute = Math.floor(time / 60).toString();
+    var second = (time - 60 * minute).toString();
+
+    if (second.length == 1) second = '0' + second;
+
+    return util.format("%s:%s", minute, second);
 }
 
 /**

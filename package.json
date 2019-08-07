@@ -12,6 +12,7 @@
     "discord.js": "^11.5.1",
     "fs": "0.0.1-security",
     "opusscript": "0.0.6",
+    "util": "^0.12.1",
     "yt-search": "^0.4.1",
     "ytdl-core": "^0.29.4",
     "ytpl": "^0.1.14"

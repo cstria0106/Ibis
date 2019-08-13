@@ -5,12 +5,14 @@ const Command = require('./system/command');
 const router = require('./system/router');
 const help = require('./utility/help/help')
 const fs = require('fs');
+const prompt = require('./bot/prompt')
 
 const client = new Discord.Client();
 
 client.on('ready', function () {
     client.user.setActivity(config.prefix + 'help', { type: "LISTENING" });
     help.init();
+    prompt.start();
 })
 
 client.on('message', function (msg) {
@@ -28,4 +30,4 @@ fs.readFile('token.txt', 'utf-8', function (err, token) {
     }
 
     client.login(token.trim());
-})
+});

@@ -334,7 +334,7 @@ async function startStream(guild, command, music) {
     });
 
     // 볼륨 설정
-    queue.stream.setVolumeLogarithmic(1 / 5);
+    queue.stream.setVolumeLogarithmic(2 / 5);
 }
 
 /**
@@ -614,3 +614,5 @@ async function toggleShuffle(command) {
         return alert('', '셔플이 비활성화 되었습니다.', command.msg.channel);
     }
 }
+
+module.exports.queues = queues;

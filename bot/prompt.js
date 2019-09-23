@@ -2,12 +2,12 @@ const readline = require('readline');
 const musicmanager = require('../music/music-manager');
 const Discord = require('discord.js');
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 module.exports.start = function () {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
     rl.setPrompt('');
     rl.prompt();
 

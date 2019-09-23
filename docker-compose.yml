@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  ibis:
+    image: ibis
+    build: .
+    environment:
+      NODE_ENV: production

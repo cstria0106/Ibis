@@ -37,7 +37,12 @@ module.exports = async function (type, text, channel) {
         embed.setTitle(`${icon} ${text}`);
     }
 
-    await channel.send(embed);
+    try {
+        await channel.send(embed);
+    }
+    catch (err) {
+        console.log('alert 메세지 전송 실패\n' + err);
+    }
 
     return;
 }

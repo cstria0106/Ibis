@@ -172,7 +172,13 @@ async function play(command) {
     }
 
     // 음성 채널에 접속한다. 큐가 없으면 새로 생성되고, 있다면 큐의 채널이 갱신된다.
-    await join(command);
+    try {
+        await join(command);
+    } catch (err) {
+        console.log(err);
+        alert('ERROR', '보이스 채널에 접속할 수 없습니다.', command.msg.channel);
+        return;
+    }
     queue = queues.get(command.msg.guild.id);
 
     if (command.args.length > 0) {
@@ -181,11 +187,23 @@ async function play(command) {
             try {
                 if (command.args[0].includes('list=')) {
                     // 플레이리스트
-                    await addPlaylist(command, command.args[0]);
+                    try {
+                        await addPlaylist(command, command.args[0]);
+                    } catch (err) {
+                        console.log(err);
+                        alert('ERROR', '플레이 리스트를 추가할 수 없습니다.', command.msg.channel);
+                        return;
+                    }
                 }
                 else {
                     // 단일 영상
-                    await addMusic(command, command.args[0]);
+                    try {
+                        await addMusic(command, command.args[0]);
+                    } catch (err) {
+                        console.log(err);
+                        alert('ERROR', '음악을 추가할 수 없습니다.', command.msg.channel);
+                        return;
+                    }
                 }
             }
             catch (e) {
@@ -355,13 +373,22 @@ async function skip(command) {
         return alert('ERROR', '현재 대기열이 비어있습니다.', command.msg.channel);
     }
 
-    await command.msg.react('✅');
+    try {
+        await command.msg.react('✅');
+    } catch (err) {
+        console.log(err);
+    }
 
     const embed = new Discord.RichEmbed()
         .setTitle(`🎵 다음 음악이 스킵되었습니다.`)
         .setDescription(`${queue.musics[0].title}`)
         .setColor('#00ccff');
-    await command.msg.channel.send(embed);
+
+    try {
+        await command.msg.channel.send(embed);
+    } catch (err) {
+        console.log(err);
+    }
 
     queue.guild.voiceConnection.dispatcher.end();
 
@@ -376,8 +403,15 @@ async function skip(command) {
 async function addMusic(command, url) {
     if (command.msg.member.voiceChannel) {
         const queue = queues.get(command.msg.guild.id);
+        const musicInfo;
 
-        const musicInfo = await ytdl.getInfo(url);
+        try {
+            musicInfo = await ytdl.getInfo(url);
+        } catch (err) {
+            console.log(err);
+            alert('ERROR', '음악 정보를 불러 올 수 없습니다.', command.msg.channel);
+            return;
+        }
 
         const music = new Music();
 
@@ -393,7 +427,11 @@ async function addMusic(command, url) {
             .setDescription(`위 음악을 대기열 ${queue.musics.length}번째 위치에 추가했습니다.`)
             .setURL(url)
             .setColor('#00ccff');
-        await command.msg.channel.send(embed);
+        try {
+            await command.msg.channel.send(embed);
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
@@ -405,7 +443,14 @@ async function addMusic(command, url) {
 async function addPlaylist(command, url) {
     const queue = queues.get(command.msg.guild.id);
 
-    const listInfo = await ytpl(url);
+    const listInfo;
+    try {
+        listInfo = await ytpl(url);
+    } catch (err) {
+        console.log(err);
+        alert('ERROR', '플레이 리스트를 불러 올 수 없습니다.', command.msg.channel);
+        return;
+    }
 
     listInfo.items.forEach(function (item) {
         const music = new Music();
@@ -426,7 +471,11 @@ async function addPlaylist(command, url) {
         .setDescription(`위 재생 목록을 통해 대기열에 ${listInfo.total_items}개의 음악을 추가했습니다.`)
         .setURL(url)
         .setColor('#00ccff');
-    await command.msg.channel.send(embed);
+    try {
+        await command.msg.channel.send(embed);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 /**
@@ -436,14 +485,18 @@ async function addPlaylist(command, url) {
 async function printQueue(command) {
     const queue = queues.get(command.msg.guild.id);
 
-    if (!queue) {
-        await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 존재하지 않습니다.\n```');
-        return;
-    }
+    try {
+        if (!queue) {
+            await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 존재하지 않습니다.\n```');
+            return;
+        }
 
-    if (!queue || queue.musics.length == 0) {
-        await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 비어있습니다.\n```');
-        return;
+        if (!queue || queue.musics.length == 0) {
+            await command.msg.channel.send('```asciidoc\n[대기열]\n\n현재 대기열이 비어있습니다.\n```');
+            return;
+        }
+    } catch (err) {
+        console.log(err);
     }
 
     var text = '```asciidoc\n[대기열]\n\n';
@@ -507,7 +560,11 @@ async function toggleRepeat(command) {
 
     queue.repeat = !queue.repeat;
 
-    await command.msg.react('✅');
+    try {
+        await command.msg.react('✅');
+    } catch (err) {
+        console.log(err);
+    }
 
     if (queue.repeat) {
         return alert('', '반복 재생이 활성화 되었습니다.', command.msg.channel);
@@ -548,7 +605,11 @@ async function clearMusics(command) {
 
     queue.musics.splice(1, count);
 
-    await command.msg.react('✅');
+    try {
+        await command.msg.react('✅');
+    } catch (err) {
+        console.log(err);
+    }
 
     return alert('', `대기열에서 ${count}개의 음악이 제거되었습니다.`, command.msg.channel);
 }
@@ -583,7 +644,11 @@ async function deleteMusic(command) {
         return alert('ERROR', '잘못된 명령어입니다.', command.msg.channel);
     }
 
-    await command.msg.react('✅');
+    try {
+        await command.msg.react('✅');
+    } catch (err) {
+        console.log(err);
+    }
 
     const embed = new Discord.RichEmbed()
         .setTitle(`다음 음악이 대기열에서 제거되었습니다.`)
@@ -604,7 +669,11 @@ async function toggleShuffle(command) {
 
     queue.shuffle = !queue.shuffle;
 
-    await command.msg.react('✅');
+    try {
+        await command.msg.react('✅');
+    } catch (err) {
+        console.log(err);
+    }
 
     if (queue.shuffle) {
         return alert('', '셔플이 활성화 되었습니다.', command.msg.channel);

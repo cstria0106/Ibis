@@ -1,11 +1,12 @@
 const Discord = require('discord.js');
-const global = require('./system/global');
-const config = require('./system/config');
 const Command = require('./system/command');
 const router = require('./system/router');
-const help = require('./utility/help/help')
-const fs = require('fs');
-const prompt = require('./bot/prompt')
+const help = require('./utility/help/help');
+const prompt = require('./bot/prompt');
+const config = require('./system/config');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const client = new Discord.Client();
 
@@ -24,15 +25,8 @@ client.on('message', function (msg) {
     }
 });
 
-// node . <TOKEN> <PREFIX>
-
-if (process.argv.length > 2) {
-    client.login(process.argv[2].trim());
-
-    // PREFIX 설정
-    if (process.argv.length > 3) {
-        config.prefix = process.argv[3];
-    }
+if (process.env.DISCORD_TOKEN) {
+    client.login(process.env.DISCORD_TOKEN);
 }
 else {
     console.log("토큰이 없습니다.");

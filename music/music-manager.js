@@ -7,7 +7,6 @@ const Queue = require('./queue');
 const Music = require('./music');
 const alert = require('../utility/alert');
 const config = require('../system/config');
-const global = require('../system/global');
 const util = require('util');
 
 /**
@@ -151,7 +150,7 @@ async function checkTimeout(command, intervalID) {
         queue.idleTime += 1;
     }
 
-    if (queue.idleTime >= global.disconnectionTime) {
+    if (queue.idleTime >= config.disconnectionTime) {
         alert("WARNING", "자동으로 연결을 종료합니다.", command.msg.channel);
         command.msg.guild.voiceConnection.disconnect();
         clearInterval(intervalID);
@@ -215,7 +214,7 @@ async function play(command) {
 
                 command.msg.channel.send(text).then((display) => {
                     const filter = (msg) => msg.author.id == command.msg.author.id;
-                    command.msg.channel.awaitMessages(filter, { max: 1, time: global.searchTime * 1000 })
+                    command.msg.channel.awaitMessages(filter, { max: 1, time: config.searchTime * 1000 })
                         .then(collected => {
                             const answer = collected.first();
                             var text = answer.content;

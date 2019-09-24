@@ -1,12 +1,12 @@
 const Discord = require('discord.js');
 const config = require('./config');
 
-class Command{
+class Command {
     /**
      * 
      * @param {Discord.Message} msg 
      */
-    constructor(msg){
+    constructor(msg) {
         var text = msg.content.trim().substr(config.prefix.length);
         this.type = text.split(' ')[0];
         this.args = text.split(' ').splice(1);

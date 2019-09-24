@@ -1,4 +1,6 @@
 module.exports = {
-    prefix: '!',
-    noQueueDisconnection: false
-} 
+    prefix: "!",
+    noQueueDisconnection: false,
+    disconnectionTime: 120,
+    searchTime: 30
+}

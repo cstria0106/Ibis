@@ -403,7 +403,7 @@ async function skip(command) {
 async function addMusic(command, url) {
     if (command.msg.member.voiceChannel) {
         const queue = queues.get(command.msg.guild.id);
-        const musicInfo;
+        let musicInfo;
 
         try {
             musicInfo = await ytdl.getInfo(url);
@@ -443,7 +443,8 @@ async function addMusic(command, url) {
 async function addPlaylist(command, url) {
     const queue = queues.get(command.msg.guild.id);
 
-    const listInfo;
+    let listInfo;
+
     try {
         listInfo = await ytpl(url);
     } catch (err) {

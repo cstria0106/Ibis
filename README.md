@@ -1,7 +1,7 @@
 # Ibis
 ![Logo](https://github.com/cstria0106/Ibis/blob/master/logo.png?raw=true)
 
-Ibis는 NodeJS로 짜여진 음악 재생용 디스코드 봇입니다.
+Ibis는 NodeJS로 작성된 음악 재생용 디스코드 봇입니다.
 
 ## Features
 ```
@@ -11,6 +11,7 @@ Ibis는 NodeJS로 짜여진 음악 재생용 디스코드 봇입니다.
 
 ## Requirement
 ```
-.env 파일
-    DISCORD_TOKEN=<TOKEN>    
+.env
+    DISCORD_TOKEN=<TOKEN>
+    DISCORD_PREFIX=<PREFIX>
 ```

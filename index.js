@@ -15,7 +15,7 @@ client.on('ready', function () {
     client.user.setActivity(config.prefix + 'help', { type: "LISTENING" });
     help.init();
     prompt.start();
-})
+});
 
 client.on('message', function (msg) {
     var text = msg.content.trim();
@@ -25,8 +25,8 @@ client.on('message', function (msg) {
     }
 });
 
-if (process.env.DISCORD_TOKEN) {
-    client.login(process.env.DISCORD_TOKEN);
+if (config.token) {
+    client.login(config.token);
 }
 else {
     console.log("토큰이 없습니다.");

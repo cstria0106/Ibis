@@ -6,6 +6,6 @@ module.exports = {
     token: process.env.DISCORD_TOKEN,
     prefix: process.env.DISCORD_PREFIX,
     noQueueDisconnection: false,
-    disconnectionTime: 120,
-    searchTime: 30
+    disconnectionTime: process.env.DISCORD_PREFIX,
+    searchTime: 30,
 };

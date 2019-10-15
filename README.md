@@ -14,4 +14,5 @@ Ibis는 NodeJS로 작성된 음악 재생용 디스코드 봇입니다.
 .env
     DISCORD_TOKEN=<TOKEN>
     DISCORD_PREFIX=<PREFIX>
+    DISCONNECTION_TIME=<SECONDS>
 ```

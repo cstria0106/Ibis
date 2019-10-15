@@ -17,11 +17,11 @@ client.on('ready', function () {
     prompt.start();
 });
 
-client.on('message', function (msg) {
+client.on('message', async function (msg) {
     var text = msg.content.trim();
     if (text.startsWith(config.prefix)) {
         var command = new Command(msg);
-        router.route(command);
+        await router.route(command);
     }
 });
 

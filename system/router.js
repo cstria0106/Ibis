@@ -1,12 +1,13 @@
 const Command = require('./command');
 const musicManager = require('../music/music-manager');
+const funManager = require('../fun/fun-manager');
 const help = require('../utility/help/help');
 
 /**
  * 
  * @param {Command} command 
  */
-module.exports.route = function (command) {
+module.exports.route = async function (command) {
     try {
         switch (command.type) {
             case 'play':
@@ -22,10 +23,14 @@ module.exports.route = function (command) {
             case 'delete':
             case 'shuffle':
             case 'join':
-                musicManager.cmd(command);
+                await musicManager.cmd(command);
                 break;
             case 'help':
                 help.cmd(command);
+                break;
+            case 'dog':
+            case 'cat':
+                await funManager.cmd(command);
                 break;
         }
     } catch (err) {

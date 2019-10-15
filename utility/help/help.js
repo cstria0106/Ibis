@@ -1,6 +1,6 @@
 const Command = require('../../system/command');
 const fs = require('fs');
-const config = require('../../system/config')
+const config = require('../../system/config');
 const Discord = require('discord.js');
 const alert = require('../alert');
 
@@ -14,7 +14,7 @@ module.exports.init = function () {
         }
         commands = JSON.parse(data);
     });
-}
+};
 
 /**
  * @param {Command} command
@@ -23,7 +23,7 @@ module.exports.cmd = function (command) {
     if (command.args.length == 0) {
         // 명령어 목록
         const embed = new Discord.RichEmbed();
-        embed.setDescription(`명령어 목록은 다음과 같습니다.\n\`${config.prefix}help <명령어>\`를 통해 자세한 설명을 볼 수 있습니다.`)
+        embed.setDescription(`명령어 목록은 다음과 같습니다.\n\`${config.prefix}help <명령어>\`를 통해 자세한 설명을 볼 수 있습니다.`);
         embed.setColor('#00ccff');
 
         commands.forEach(set => {
@@ -40,8 +40,7 @@ module.exports.cmd = function (command) {
 
         command.msg.channel.send(embed);
         return;
-    }
-    else if (command.args.length == 1) {
+    } else if (command.args.length == 1) {
         // 명령어 설명
         const embed = new Discord.RichEmbed();
 
@@ -57,8 +56,6 @@ module.exports.cmd = function (command) {
 
             return cmd;
         });
-
-        console.log(cmd);
 
         if (!cmd) {
             return alert('ERROR', '해당하는 명령어가 없습니다.', command.msg.channel);
@@ -79,8 +76,7 @@ module.exports.cmd = function (command) {
         }
 
         command.msg.channel.send(embed);
-    }
-    else {
+    } else {
         return alert('ERROR', '잘못된 명령어입니다.', command.msg.channel);
     }
-}
+};

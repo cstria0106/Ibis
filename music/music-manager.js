@@ -453,8 +453,6 @@ async function addPlaylist(command, url) {
         return;
     }
 
-    console.log(listInfo.items.length);
-
     listInfo.items.forEach(function (item) {
         const music = new Music();
 

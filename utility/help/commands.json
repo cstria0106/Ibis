@@ -62,8 +62,17 @@
       {
         "name": "queue|q",
         "description": "현재 대기열을 출력합니다.",
-        "usage": "(q)ueue",
-        "examples": []
+        "usage": "(q)ueue <페이지>",
+        "examples": [
+			{
+				"command": "queue",
+				"description": "맨 앞에서 20개의 대기열을 출력합니다."
+			},
+			{
+				"command": "queue 3",
+				"description": "대기열의 세 번째 페이지를 출력합니다."			
+			}
+		]
       },
       {
         "name": "nowplaying|np",

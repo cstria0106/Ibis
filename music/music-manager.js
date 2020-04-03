@@ -247,7 +247,7 @@ async function play(command) {
                             }
 
                             const num = parseInt(text);
-                            const url = `https://www.youtube.com${videos[num - 1].url}`;
+                            const url = videos[num - 1].url;
 
                             answer.delete();
                             display.delete();
@@ -446,12 +446,14 @@ async function addPlaylist(command, url) {
     let listInfo;
 
     try {
-        listInfo = await ytpl(url);
+        listInfo = await ytpl(url, {limit: 0});
     } catch (err) {
         console.log(err);
         alert('ERROR', '플레이 리스트를 불러 올 수 없습니다.', command.msg.channel);
         return;
     }
+
+    console.log(listInfo.items.length);
 
     listInfo.items.forEach(function (item) {
         const music = new Music();
@@ -485,6 +487,11 @@ async function addPlaylist(command, url) {
  */
 async function printQueue(command) {
     const queue = queues.get(command.msg.guild.id);
+    const paging = 20;
+    const maxPage = Math.ceil(queue.musics.length / paging);
+    var page = Number(command.args[0]) || 1;
+    if(page > maxPage) page = maxPage;
+    if(page < 1) page = 1;
 
     try {
         if (!queue) {
@@ -500,9 +507,9 @@ async function printQueue(command) {
         console.log(err);
     }
 
-    var text = '```asciidoc\n[대기열]\n\n';
+    var text = `\`\`\`asciidoc\n[대기열 ${page}/${maxPage}]\n\n`;
 
-    for (i = 0; i < queue.musics.length; i++) {
+    for (i = paging * (page - 1); i < paging * page && i < queue.musics.length; i++) {
         text += `${i + 1} - ${queue.musics[i].title} - [${queue.musics[i].user.username}]\n`
     }
 

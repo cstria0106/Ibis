@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.1.1",
+    "discord.js": "^11.5.1",
     "dotenv": "^8.1.0",
     "fs": "0.0.1-security",
     "opusscript": "0.0.6",

@@ -9,15 +9,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.5.1",
+    "discord.js": "^12.1.1",
     "dotenv": "^8.1.0",
     "fs": "0.0.1-security",
     "opusscript": "0.0.6",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "util": "^0.12.1",
-    "yt-search": "^0.4.1",
-    "ytdl-core": "^0.29.7",
-    "ytpl": "^0.1.16"
+    "yt-search": "^1.1.2",
+    "ytdl-core": "^2.0.1",
+    "ytpl": "^0.1.20"
   }
 }

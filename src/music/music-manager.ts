@@ -1,4 +1,3 @@
-import ytdlDiscord from 'ytdl-core-discord';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import ytSearch from 'yt-search';
@@ -268,14 +267,13 @@ async function startStream(guild: Discord.Guild, command: Command, music: Music)
 
 		return;
 	}
-	const stream = await ytdlDiscord(music.url, {filter: 'audioonly', highWaterMark: 1 << 25});
+	const stream = await ytdl(music.url, {filter: 'audioonly', highWaterMark: 1 << 25});
+	
 	stream.on('error', (e) => {
 		console.trace(e);
 	});
 
-	queue.dispatcher = queue.guild.voice.connection.play(stream, {
-		type: 'opus',
-	});
+	queue.dispatcher = queue.guild.voice.connection.play(stream);
 
 	queue.dispatcher.on('start', async () => {
 		// 음악 재생 시작

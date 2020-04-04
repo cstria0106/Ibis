@@ -1,0 +1,154 @@
+[
+	{
+		"category": "유틸리티",
+		"list": [
+			{
+				"name": "help",
+				"description": "명령어 목록이나 명령어에 대한 도움말을 보여줍니다.",
+				"usage": "help <명령어>",
+				"examples": [
+					{
+						"command": "help",
+						"description": "명령어 목록을 출력합니다."
+					},
+					{
+						"command": "help play",
+						"description": "play 명령어에 대한 도움말을 출력합니다."
+					}
+				]
+			}
+		]
+	},
+	{
+		"category": "음악",
+		"list": [
+			{
+				"name": "play|p",
+				"description": "유튜브에서 음악을 검색하거나 재생할 수 있습니다.",
+				"usage": "(p)lay <음악>",
+				"examples": [
+					{
+						"command": "play never gonna give you up",
+						"description": "유튜브에 'never gonna give you up'을 검색합니다."
+					},
+					{
+						"command": "play https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+						"description": "해당 주소를 통해 음악을 대기열에 추가합니다."
+					},
+					{
+						"command": "play https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLi9drqWffJ9FWBo7ZVOiaVy0UQQEm4IbP",
+						"description": "해당 주소를 통해 재생 목록을 대기열에 추가합니다."
+					}
+				]
+			},
+			{
+				"name": "skip",
+				"description": "현재 재생중인 음악을 스킵합니다.",
+				"usage": "skip",
+				"examples": []
+			},
+			{
+				"name": "join",
+				"description": "봇이 음성 채널에 접속하게 합니다.",
+				"usage": "join",
+				"examples": []
+			},
+			{
+				"name": "leave",
+				"description": "봇이 접속중인 음성 채널에서 나가게 합니다.",
+				"usage": "leave",
+				"examples": []
+			},
+			{
+				"name": "queue|q",
+				"description": "현재 대기열을 출력합니다.",
+				"usage": "(q)ueue <페이지>",
+				"examples": [
+					{
+						"command": "queue",
+						"description": "맨 앞에서 20개의 대기열을 출력합니다."
+					},
+					{
+						"command": "queue 3",
+						"description": "대기열의 세 번째 페이지를 출력합니다."
+					}
+				]
+			},
+			{
+				"name": "nowplaying|np",
+				"description": "현재 재생중인 음악을 보여줍니다.",
+				"usage": "nowplaying|np",
+				"examples": []
+			},
+			{
+				"name": "clear",
+				"description": "현재 대기열의 앞에서 임의 갯수의 음악을 제거합니다.",
+				"usage": "clear <갯수>",
+				"examples": [
+					{
+						"command": "clear",
+						"description": "대기열의 모든 음악을 제거합니다."
+					},
+					{
+						"command": "clear 4",
+						"description": "대기열의 앞에서 4개의 음악을 제거합니다."
+					}
+				]
+			},
+			{
+				"name": "delete",
+				"description": "현재 대기열의 특정 위치에 있는 음악을 제거합니다.",
+				"usage": "delete <위치> <위치> ...",
+				"examples": [
+					{
+						"command": "delete 3",
+						"description": "대기열에서 3번째 위치에 있는 음악을 제거합니다."
+					},
+					{
+						"command": "clear 2 7",
+						"description": "대기열의 앞에서 2번째와 7번째 위치에 있는 음악을 제거합니다."
+					}
+				]
+			},
+			{
+				"name": "repeat",
+				"description": "현재 대기열을 반복합니다. 이는 켜고 끌 수 있습니다.",
+				"usage": "repeat",
+				"examples": []
+			},
+			{
+				"name": "shuffle",
+				"description": "다음 음악을 랜덤으로 재생합니다. 이는 켜고 끌 수 있습니다.",
+				"usage": "shuffle",
+				"examples": []
+			}
+		]
+	},
+	{
+		"category": "재밌는 것!",
+		"list": [
+			{
+				"name": "dog",
+				"description": "멍뭉이 사진을 보여줍니다!",
+				"usage": "dog",
+				"examples": [
+					{
+						"command": "dog",
+						"description": "댕댕이 사진 하나가 뿅"
+					}
+				]
+			},
+			{
+				"name": "cat",
+				"description": "야옹이 사진을 보여줍니다!",
+				"usage": "dog",
+				"examples": [
+					{
+						"command": "dog",
+						"description": "떼껄룩 사진 하나가 뿅"
+					}
+				]
+			}
+		]
+	}
+]

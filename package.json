@@ -1,24 +1,33 @@
 {
-  "name": "ibis",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "discord.js": "^11.5.1",
-    "dotenv": "^8.1.0",
-    "fs": "0.0.1-security",
-    "opusscript": "0.0.6",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7",
-    "util": "^0.12.1",
-    "yt-search": "^1.1.2",
-    "ytdl-core": "^2.0.1",
-    "ytdl-core-discord": "^1.1.0",
-    "ytpl": "^0.1.20"
-  }
+	"name": "ibis",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/index.ts",
+	"scripts": {
+		"start": "node dist/index.js",
+		"build": "tsc"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@discordjs/opus": "^0.1.0",
+		"discord.js": "^12.1.1",
+		"dotenv": "^8.1.0",
+		"fs": "0.0.1-security",
+		"opusscript": "0.0.6",
+		"request": "^2.88.0",
+		"request-promise": "^4.2.5",
+		"source-map-support": "^0.5.16",
+		"typescript": "^3.8.3",
+		"util": "^0.12.1",
+		"yt-search": "^1.1.2",
+		"ytdl-core": "^2.0.1",
+		"ytdl-core-discord": "^1.1.0",
+		"ytpl": "^0.1.20"
+	},
+	"devDependencies": {
+		"@types/node": "^13.11.0",
+		"@types/request-promise": "^4.1.46",
+		"@types/yt-search": "^1.1.0"
+	}
 }

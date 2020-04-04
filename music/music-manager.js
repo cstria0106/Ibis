@@ -1,4 +1,4 @@
-const ytdl = require('ytdl-core');
+const ytdl = require('ytdl-core-discord');
 const ytpl = require('ytpl');
 const ytSearch = require('yt-search');
 const Discord = require('discord.js');
@@ -307,7 +307,7 @@ async function startStream(guild, command, music) {
         return;
     }
 
-    queue.stream = queue.guild.voiceConnection.playStream(ytdl(music.url, { filter: 'audioonly' }));
+    queue.stream = queue.guild.voiceConnection.playOpusStream(await ytdl(music.url));
 
     queue.stream.on('start', function () {
         // 음악 재생 시작

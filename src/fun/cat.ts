@@ -1,5 +1,5 @@
 import request from 'request-promise';
-import alert, {AlertType} from '../utility/alert';
+import alert, { AlertType } from '../utility/alert';
 import Command from '../system/Command';
 
 export default async function (command: Command) {
@@ -18,7 +18,7 @@ export default async function (command: Command) {
 			return alert(AlertType.Error, '명령을 처리할 수 없습니다.', command.msg.channel);
 		}
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 		return alert(AlertType.Error, '명령을 처리할 수 없습니다.', command.msg.channel);
 	}
 };

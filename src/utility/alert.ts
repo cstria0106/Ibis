@@ -1,4 +1,4 @@
-import Discord, {DMChannel, NewsChannel, TextChannel} from 'discord.js';
+import Discord, { DMChannel, NewsChannel, TextChannel } from 'discord.js';
 
 export enum AlertType {
 	OK,
@@ -16,7 +16,7 @@ export default async function (type: AlertType, text: string, channel: TextChann
 			embed.setColor('#00cc00');
 			break;
 
-		case  AlertType.Warning:
+		case AlertType.Warning:
 			icon = '⚠';
 			embed.setColor('#eeee00');
 			break;
@@ -40,6 +40,6 @@ export default async function (type: AlertType, text: string, channel: TextChann
 	try {
 		await channel.send(embed);
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 };

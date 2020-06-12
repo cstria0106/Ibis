@@ -7,7 +7,7 @@ import Queue from './Queue';
 import Music from './Music';
 import config from '../system/config';
 import util from 'util';
-import alert, {AlertType} from '../utility/alert';
+import alert, { AlertType } from '../utility/alert';
 import Timeout = NodeJS.Timeout;
 
 const queues: { [guildId: string]: Queue } = {};
@@ -153,7 +153,7 @@ async function play(command: Command) {
 	try {
 		await join(command);
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 		await alert(AlertType.Error, '보이스 채널에 접속할 수 없습니다.', command.msg.channel);
 		return;
 	}
@@ -168,7 +168,7 @@ async function play(command: Command) {
 					try {
 						await addPlaylist(command, command.args[0]);
 					} catch (e) {
-						console.trace(e);
+						console.log(e);
 						await alert(AlertType.Error, '플레이 리스트를 추가할 수 없습니다.', command.msg.channel);
 						return;
 					}
@@ -177,13 +177,13 @@ async function play(command: Command) {
 					try {
 						await addMusic(command, command.args[0]);
 					} catch (e) {
-						console.trace(e);
+						console.log(e);
 						await alert(AlertType.Error, '음악을 추가할 수 없습니다.', command.msg.channel);
 						return;
 					}
 				}
 			} catch (e) {
-				console.trace(e);
+				console.log(e);
 				await alert(AlertType.Error, '올바르지 않은 주소입니다.', command.msg.channel);
 				return;
 			}
@@ -267,10 +267,12 @@ async function startStream(guild: Discord.Guild, command: Command, music: Music)
 
 		return;
 	}
-	const stream = await ytdl(music.url, {filter: 'audioonly', highWaterMark: 1 << 25});
-	
+
+
+	const stream = ytdl(music.url, { filter: 'audioonly', highWaterMark: 1 << 25 });
+
 	stream.on('error', (e) => {
-		console.trace(e);
+		console.log(e);
 	});
 
 	queue.dispatcher = queue.guild.voice.connection.play(stream);
@@ -313,7 +315,7 @@ async function startStream(guild: Discord.Guild, command: Command, music: Music)
 	});
 
 	queue.dispatcher.on('error', (e) => {
-		console.trace(e);
+		console.log(e);
 	});
 
 	// 볼륨 설정
@@ -338,7 +340,7 @@ async function skip(command: Command) {
 	try {
 		await command.msg.react('✅');
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	const embed = new Discord.MessageEmbed()
@@ -349,7 +351,7 @@ async function skip(command: Command) {
 	try {
 		await command.msg.channel.send(embed);
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	queue.dispatcher.end();
@@ -363,7 +365,7 @@ async function addMusic(command: Command, url: string) {
 		try {
 			musicInfo = await ytdl.getInfo(url);
 		} catch (e) {
-			console.trace(e);
+			console.log(e);
 			await alert(AlertType.Error, '음악 정보를 불러 올 수 없습니다.', command.msg.channel);
 			return;
 		}
@@ -379,7 +381,7 @@ async function addMusic(command: Command, url: string) {
 		try {
 			await command.msg.channel.send(embed);
 		} catch (e) {
-			console.trace(e);
+			console.log(e);
 		}
 	}
 }
@@ -390,9 +392,9 @@ async function addPlaylist(command: Command, url: string) {
 	let listInfo;
 
 	try {
-		listInfo = await ytpl(url, {limit: 0});
+		listInfo = await ytpl(url, { limit: 0 });
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 		await alert(AlertType.Error, '플레이 리스트를 불러 올 수 없습니다.', command.msg.channel);
 		return;
 	}
@@ -414,7 +416,7 @@ async function addPlaylist(command: Command, url: string) {
 	try {
 		await command.msg.channel.send(embed);
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 }
 
@@ -437,7 +439,7 @@ async function printQueue(command: Command) {
 			return;
 		}
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	let text = `\`\`\`asciidoc\n[대기열 ${page}/${maxPage}]\n\n`;
@@ -493,7 +495,7 @@ async function toggleRepeat(command: Command) {
 	try {
 		await command.msg.react('✅');
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	if (queue.repeat) {
@@ -533,7 +535,7 @@ async function clearMusics(command: Command) {
 	try {
 		await command.msg.react('✅');
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	return alert(null, `대기열에서 ${count}개의 음악이 제거되었습니다.`, command.msg.channel);
@@ -568,7 +570,7 @@ async function deleteMusic(command: Command) {
 	try {
 		await command.msg.react('✅');
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	const embed = new Discord.MessageEmbed()
@@ -589,7 +591,7 @@ async function toggleShuffle(command: Command) {
 	try {
 		await command.msg.react('✅');
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 	}
 
 	if (queue.shuffle) {

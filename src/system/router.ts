@@ -30,7 +30,7 @@ export async function route(command: Command) {
 				break;
 		}
 	} catch (e) {
-		console.trace(e);
+		console.log(e);
 		return;
 	}
 }
